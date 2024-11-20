@@ -75,6 +75,7 @@ middleware logLevel getAuthRole = case logLevel of
       , Wai.destination = Wai.Handle stdout
       }
 
+-- All observations are logged except some that depend on the log-level
 observationLogger :: LoggerState -> LogLevel -> ObservationHandler
 observationLogger loggerState logLevel obs = case obs of
   o@(PoolAcqTimeoutObs _) -> do
@@ -85,9 +86,6 @@ observationLogger loggerState logLevel obs = case obs of
     when (logLevel >= LogError) $ do
       logWithZTime loggerState $ observationMessage o
   o@(HasqlPoolObs _) -> do
-    when (logLevel >= LogDebug) $ do
-      logWithZTime loggerState $ observationMessage o
-  o@(SchemaCacheLoadedObs _) -> do
     when (logLevel >= LogDebug) $ do
       logWithZTime loggerState $ observationMessage o
   PoolRequest ->

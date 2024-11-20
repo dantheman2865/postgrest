@@ -31,9 +31,9 @@ concurrency:
 jobs:
   static:
     name: Nix - Linux static
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup Nix Environment
         uses: ./.github/actions/setup-nix
         with:
@@ -42,7 +42,7 @@ jobs:
       - name: Build static executable
         run: nix-build -A postgrestStatic
       - name: Save built executable as artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: postgrest-linux-static-x64
           path: result/bin/postgrest
@@ -51,7 +51,7 @@ jobs:
       - name: Build Docker image
         run: nix-build -A docker.image --out-link postgrest-docker.tar.gz
       - name: Save built Docker image as artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: postgrest-docker-x64
           path: postgrest-docker.tar.gz
@@ -60,9 +60,9 @@ jobs:
 
   macos:
     name: Nix - MacOS
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup Nix Environment
         uses: ./.github/actions/setup-nix
         with:
@@ -96,12 +96,13 @@ jobs:
             # no artifact for Linux, because we use the static build
 
           - name: MacOS
-            runs-on: macos-12
+            runs-on: macos-14
             cache: |
               ~/.stack/pantry
               ~/.stack/snapshots
               ~/.stack/stack.sqlite3
             artifact: postgrest-macos-x64
+            deps: brew install libpq && brew link --force libpq
 
           - name: Windows
             runs-on: windows-2022
@@ -118,11 +119,11 @@ jobs:
     name: Stack - ${{ matrix.name }}
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: haskell-actions/setup@dd344bc1cec854a369df8814ce17ef337d6e6170 # v2.7.6
         with:
           # This must match the version in stack.yaml's resolver
-          ghc-version: 9.6.5
+          ghc-version: 9.6.6
           enable-stack: true
           stack-no-global: true
           stack-setup-ghc: true
@@ -148,7 +149,7 @@ jobs:
         run: strip result/postgrest*
       - name: Save built executable as artifact
         if: matrix.artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ matrix.artifact }}
           path: |
@@ -159,9 +160,9 @@ jobs:
 
   freebsd:
     name: Stack - FreeBSD from CirrusCI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./.github/actions/artifact-from-cirrus
         with:
           token: ${{ github.token }}
@@ -173,12 +174,12 @@ jobs:
   cabal:
     strategy:
       matrix:
-        ghc: ['9.6.4', '9.8.2']
+        ghc: ['9.6.6', '9.8.2']
       fail-fast: false
     name: Cabal - Linux GHC ${{ matrix.ghc }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: haskell-actions/setup@dd344bc1cec854a369df8814ce17ef337d6e6170 # v2.7.6
         with:
           ghc-version: ${{ matrix.ghc }}
@@ -188,8 +189,8 @@ jobs:
           path: |
             ~/.cabal/packages
             ~/.cabal/store
-          prefix: cabal-${{ matrix.ghc }}
-          suffix: ${{ hashFiles('postgrest.cabal', 'cabal.project', 'cabal.project.freeze') }}
+          prefix: cabal-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+          suffix: ${{ hashFiles('postgrest.cabal', 'cabal.project') }}
       - name: Cache dist-newstyle
         uses: ./.github/actions/cache-on-main
         with:

@@ -5,7 +5,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
-
 ### Added
 
  - #3558, Add the `admin-server-host` config to set the host for the admin server - @develop7
@@ -22,6 +21,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
    + Fixed `"column reference <col> is ambiguous"` error when selecting `?select=...table(col,count())`
    + Fixed `"column <json_aggregate>.<alias> does not exist"` error when selecting `?select=...table(aias:count())`
  - #3727, Clarify "listening" logs - @steve-chavez
+ - #3795, Clarify `Accept: vnd.pgrst.object` error message - @steve-chavez
+ - #3779, Always log the schema cache load time - @steve-chavez
 
 ### Changed
 
@@ -32,6 +33,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  - #3607, PostgREST now fails to start when the JWT secret is less than 32 characters long - @laurenceisla
  - #3644, Fail schema cache lookup with invalid db-schemas config - @wolfgangwalther
    - Previously, this would silently return 200 - OK on the root endpoint, but don't provide any usable endpoints.
+ - #3757, Remove support for `Prefer: params=single-object` - @joelonsql
+   + This preference was deprecated in favor of Functions with an array of JSON objects
 
 ## [12.2.3] - 2024-08-01
 

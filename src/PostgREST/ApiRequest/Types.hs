@@ -81,7 +81,7 @@ data ApiRequestError
   | LimitNoOrderError
   | NotFound
   | NoRelBetween Text Text (Maybe Text) Text RelationshipsMap
-  | NoRpc Text Text [Text] Bool MediaType Bool [QualifiedIdentifier] [Routine]
+  | NoRpc Text Text [Text] MediaType Bool [QualifiedIdentifier] [Routine]
   | NotEmbedded Text
   | PutLimitNotAllowedError
   | QueryParamError QPError
@@ -175,7 +175,7 @@ data JsonOperation
   deriving (Eq, Show, Ord)
 
 -- | Represents the key(`->'key'`) or index(`->'1`::int`), the index is Text
--- because we reuse our escaping functons and let pg do the casting with
+-- because we reuse our escaping functions and let pg do the casting with
 -- '1'::int
 data JsonOperand
   = JKey { jVal :: Text }
